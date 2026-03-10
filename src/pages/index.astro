@@ -8,7 +8,7 @@ import Hr from "@components/Hr.astro";
 import Card from "@components/Card";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
-import { SOCIALS } from "@config";
+import { SITE, SOCIALS } from "@config";
 
 const posts = await getCollection("blog");
 
@@ -23,7 +23,36 @@ const socialCount = SOCIALS.filter(social => social.active).length;
   <Header />
   <main id="main-content">
     <section id="hero">
-      <h1>Mingalaba</h1>
+      <div class="hero-content">
+        <div class="hero-badge">Blog</div>
+        <h1>
+          Ideas worth<br />
+          <span class="hero-accent">reading.</span>
+        </h1>
+        <p class="hero-desc">
+          {SITE.desc}
+        </p>
+        <div class="hero-actions">
+          <LinkButton
+            href={`${import.meta.env.BASE_URL}posts/`}
+            className="btn-primary"
+          >
+            Browse all posts
+            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon"
+              ><path
+                d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
+              ></path>
+            </svg>
+          </LinkButton>
+          {
+            socialCount > 0 && (
+              <div class="hero-socials">
+                <Socials />
+              </div>
+            )
+          }
+        </div>
+      </div>
       <a
         target="_blank"
         href={`${import.meta.env.BASE_URL}rss.xml`}
@@ -40,41 +69,17 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         </svg>
         <span class="sr-only">RSS Feed</span>
       </a>
-
-      <p>
-        AstroPaper is a minimal, responsive, accessible and SEO-friendly Astro
-        blog theme. This theme follows best practices and provides accessibility
-        out of the box. Light and dark mode are supported by default. Moreover,
-        additional color schemes can also be configured.
-      </p>
-      <p>
-        Read the blog posts or check
-        <LinkButton
-          className="underline decoration-dashed underline-offset-4 hover:text-skin-accent"
-          href="https://github.com/satnaing/astro-paper#readme"
-        >
-          README
-        </LinkButton> for more info.
-      </p>
-      {
-        // only display if at least one social link is enabled
-        socialCount > 0 && (
-          <div class="social-wrapper">
-            <div class="social-links">Social Links:</div>
-            <Socials />
-          </div>
-        )
-      }
     </section>
-
-    <Hr />
 
     {
       featuredPosts.length > 0 && (
         <>
+          <Hr />
           <section id="featured">
-            <h2>Featured</h2>
-            <ul>
+            <div class="section-header">
+              <h2>Featured</h2>
+            </div>
+            <ul class="posts-grid">
               {featuredPosts.map(({ data, slug }) => (
                 <Card
                   href={`${import.meta.env.BASE_URL}posts/${slug}/`}
@@ -84,41 +89,40 @@ const socialCount = SOCIALS.filter(social => social.active).length;
               ))}
             </ul>
           </section>
-          {recentPosts.length > 0 && <Hr />}
         </>
       )
     }
 
     {
       recentPosts.length > 0 && (
-        <section id="recent-posts">
-          <h2>Recent Posts</h2>
-          <ul>
-            {recentPosts.map(
-              ({ data, slug }, index) =>
-                index < 4 && (
-                  <Card
-                    href={`${import.meta.env.BASE_URL}posts/${slug}/`}
-                    frontmatter={data}
-                    secHeading={false}
-                  />
-                )
-            )}
-          </ul>
-        </section>
+        <>
+          <Hr />
+          <section id="recent-posts">
+            <div class="section-header">
+              <h2>Recent Posts</h2>
+              <LinkButton
+                href={`${import.meta.env.BASE_URL}posts/`}
+                className="view-all-link"
+              >
+                View all
+                <svg xmlns="http://www.w3.org/2000/svg">
+                  <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
+                </svg>
+              </LinkButton>
+            </div>
+            <ul class="posts-grid">
+              {recentPosts.slice(0, 6).map(({ data, slug }) => (
+                <Card
+                  href={`${import.meta.env.BASE_URL}posts/${slug}/`}
+                  frontmatter={data}
+                  secHeading={false}
+                />
+              ))}
+            </ul>
+          </section>
+        </>
       )
     }
-
-    <div class="all-posts-btn-wrapper">
-      <LinkButton href={`${import.meta.env.BASE_URL}posts/`}>
-        All Posts
-        <svg xmlns="http://www.w3.org/2000/svg"
-          ><path
-            d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-          ></path>
-        </svg>
-      </LinkButton>
-    </div>
   </main>
 
   <Footer />
@@ -127,37 +131,62 @@ const socialCount = SOCIALS.filter(social => social.active).length;
 <style>
   /* ===== Hero Section ===== */
   #hero {
-    @apply pb-6 pt-8;
+    @apply relative py-16 sm:py-24;
+  }
+  .hero-content {
+    @apply max-w-2xl;
+  }
+  .hero-badge {
+    @apply mb-4 inline-flex items-center rounded-full border border-skin-accent border-opacity-40 bg-skin-accent bg-opacity-10 px-3 py-1 text-sm font-medium text-skin-accent;
   }
   #hero h1 {
-    @apply my-4 inline-block text-3xl font-bold sm:my-8 sm:text-5xl;
+    @apply mb-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl;
   }
-  #hero .rss-link {
-    @apply mb-6;
+  .hero-accent {
+    @apply text-skin-accent;
   }
-  #hero .rss-icon {
-    @apply mb-2 h-6 w-6 scale-110 fill-skin-accent sm:mb-3 sm:scale-125;
+  .hero-desc {
+    @apply mb-8 text-lg leading-relaxed text-skin-base opacity-70;
   }
-  #hero p {
-    @apply my-2;
+  .hero-actions {
+    @apply flex flex-wrap items-center gap-4;
   }
-  .social-wrapper {
-    @apply mt-4 flex flex-col sm:flex-row sm:items-center;
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-xl bg-skin-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg;
   }
-  .social-links {
-    @apply mb-1 mr-2 whitespace-nowrap sm:mb-0;
+  .btn-icon {
+    @apply h-4 w-4 fill-current;
+  }
+  .hero-socials {
+    @apply flex items-center;
+  }
+  .rss-link {
+    @apply absolute right-0 top-6 p-2 opacity-60 transition-opacity hover:opacity-100;
+  }
+  .rss-icon {
+    @apply h-5 w-5 fill-skin-accent;
+  }
+
+  /* ===== Section Headers ===== */
+  .section-header {
+    @apply mb-8 flex items-center justify-between;
+  }
+  #featured h2,
+  #recent-posts h2 {
+    @apply text-2xl font-bold tracking-tight;
+  }
+  .view-all-link {
+    @apply inline-flex items-center gap-1 text-sm font-medium text-skin-accent transition-opacity hover:opacity-80;
+  }
+
+  /* ===== Posts Grid ===== */
+  .posts-grid {
+    @apply grid gap-5 sm:grid-cols-2 lg:grid-cols-3;
   }
 
   /* ===== Featured & Recent Posts Sections ===== */
   #featured,
   #recent-posts {
-    @apply pb-6 pt-12;
-  }
-  #featured h2,
-  #recent-posts h2 {
-    @apply text-2xl font-semibold tracking-wide;
-  }
-  .all-posts-btn-wrapper {
-    @apply my-8 text-center;
+    @apply pb-10 pt-12;
   }
 </style>
