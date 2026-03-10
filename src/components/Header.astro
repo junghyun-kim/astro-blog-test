@@ -1,19 +1,21 @@
 ---
 import { LOGO_IMAGE, SITE } from "@config";
+import { CATEGORIES, type CategorySlug } from "@utils/getAllPosts";
 import Hr from "./Hr.astro";
-import LinkButton from "./LinkButton.astro";
 
 export interface Props {
-  activeNav?: "posts" | "tags" | "about" | "search";
+  activeCategory?: CategorySlug;
 }
 
-const { activeNav } = Astro.props;
+const { activeCategory } = Astro.props;
+
+const BASE = import.meta.env.BASE_URL;
 ---
 
 <header>
   <a id="skip-to-content" href="#main-content">Skip to content</a>
   <div class="nav-container">
-    <!-- Left nav: Posts + Tags + About -->
+    <!-- Left: first 3 categories (desktop) / hamburger (mobile) -->
     <nav class="nav-left" id="nav-menu" aria-label="Primary navigation">
       <button
         class="hamburger-menu focus-outline"
@@ -40,40 +42,30 @@ const { activeNav } = Astro.props;
           <line x1="6" y1="6" x2="18" y2="18" class="close"></line>
         </svg>
       </button>
+
+      <!-- Desktop: first 3 categories -->
       <ul id="menu-items" class="display-none sm:flex">
-        <li>
-          <a
-            href={`${import.meta.env.BASE_URL}posts/`}
-            class={activeNav === "posts" ? "active" : ""}
-          >
-            Posts
-          </a>
-        </li>
-        <li>
-          <a
-            href={`${import.meta.env.BASE_URL}tags/`}
-            class={activeNav === "tags" ? "active" : ""}
-          >
-            Tags
-          </a>
-        </li>
-        <li>
-          <a
-            href={`${import.meta.env.BASE_URL}about/`}
-            class={activeNav === "about" ? "active" : ""}
-          >
-            About
-          </a>
-        </li>
+        {
+          CATEGORIES.slice(0, 3).map(({ slug, label }) => (
+            <li>
+              <a
+                href={`${BASE}${slug}/`}
+                class={activeCategory === slug ? "active" : ""}
+              >
+                {label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
 
-    <!-- Center: Masthead / Logo -->
-    <a href={import.meta.env.BASE_URL} class="masthead">
+    <!-- Center: Masthead -->
+    <a href={BASE} class="masthead">
       {
         LOGO_IMAGE.enable ? (
           <img
-            src={`${import.meta.env.BASE_URL}assets/${LOGO_IMAGE.svg ? "logo.svg" : "logo.png"}`}
+            src={`${BASE}assets/${LOGO_IMAGE.svg ? "logo.svg" : "logo.png"}`}
             alt={SITE.title}
             width={LOGO_IMAGE.width}
             height={LOGO_IMAGE.height}
@@ -84,28 +76,21 @@ const { activeNav } = Astro.props;
       }
     </a>
 
-    <!-- Right nav: Search + Theme toggle -->
+    <!-- Right: last 2 categories + theme toggle -->
     <div class="nav-right">
       <ul class="display-none sm:flex">
-        <li>
-          <LinkButton
-            href={`${import.meta.env.BASE_URL}search/`}
-            className={`focus-outline p-3 sm:p-1 ${
-              activeNav === "search" ? "active" : ""
-            } flex`}
-            ariaLabel="search"
-            title="Search"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="scale-125 sm:scale-100"
-              ><path
-                d="M19.023 16.977a35.13 35.13 0 0 1-1.367-1.384c-.372-.378-.596-.653-.596-.653l-2.8-1.337A6.962 6.962 0 0 0 16 9c0-3.859-3.14-7-7-7S2 5.141 2 9s3.14 7 7 7c1.763 0 3.37-.66 4.603-1.739l1.337 2.8s.275.224.653.596c.387.363.896.854 1.384 1.367l1.358 1.392.604.646 2.121-2.121-.646-.604c-.379-.372-.885-.866-1.391-1.36zM9 14c-2.757 0-5-2.243-5-5s2.243-5 5-5 5 2.243 5 5-2.243 5-5 5z"
-              ></path>
-            </svg>
-            <span class="sr-only">Search</span>
-          </LinkButton>
-        </li>
+        {
+          CATEGORIES.slice(3).map(({ slug, label }) => (
+            <li>
+              <a
+                href={`${BASE}${slug}/`}
+                class={activeCategory === slug ? "active" : ""}
+              >
+                {label}
+              </a>
+            </li>
+          ))
+        }
         {
           SITE.lightAndDarkMode && (
             <li>
@@ -149,15 +134,17 @@ const { activeNav } = Astro.props;
   .nav-left ul {
     @apply flex items-center gap-1;
   }
-  .nav-left ul li a {
+  .nav-left ul li a,
+  .nav-right ul li a {
     @apply px-3 py-2 text-[11px] font-medium uppercase tracking-[0.1em] text-skin-base
     opacity-60 transition-opacity hover:opacity-100;
   }
-  .nav-left ul li a.active {
+  .nav-left ul li a.active,
+  .nav-right ul li a.active {
     @apply text-skin-accent opacity-100;
   }
 
-  /* Centered masthead — the Kinfolk/Monocle title */
+  /* Centered masthead */
   .masthead {
     @apply justify-self-center font-serif text-xl font-light tracking-[0.12em] text-skin-base
     transition-opacity hover:opacity-70 sm:text-2xl;
@@ -191,19 +178,11 @@ const { activeNav } = Astro.props;
     @apply opacity-100;
   }
 
-  nav button,
-  .nav-right button {
-    @apply p-1;
-  }
-  nav button svg,
-  .nav-right button svg {
-    @apply h-6 w-6 fill-skin-base hover:fill-skin-accent;
-  }
   #theme-btn {
-    @apply p-2 transition-colors hover:bg-skin-card sm:p-2;
+    @apply p-2 transition-colors hover:bg-skin-card;
   }
   #theme-btn svg {
-    @apply scale-125 hover:rotate-12 sm:scale-100;
+    @apply h-6 w-6 scale-125 fill-skin-base hover:fill-skin-accent sm:scale-100;
   }
 
   /* Mobile expanded menu */
@@ -246,6 +225,5 @@ const { activeNav } = Astro.props;
 
   toggleNav();
 
-  // Runs on view transitions navigation
   document.addEventListener("astro:after-swap", toggleNav);
 </script>

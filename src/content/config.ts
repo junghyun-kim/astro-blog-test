@@ -1,6 +1,7 @@
 import { SITE } from "@config";
 import { defineCollection, z } from "astro:content";
 
+// ── Legacy blog collection (AstroPaper) ────────────────────────────────────
 const blog = defineCollection({
   type: "content",
   schema: ({ image }) =>
@@ -23,4 +24,30 @@ const blog = defineCollection({
     }),
 });
 
-export const collections = { blog };
+// ── 5ducks category collections ────────────────────────────────────────────
+// Shared schema for all five category collections.
+// heroImage accepts a local public-path string or an external URL.
+const categoryPostSchema = z.object({
+  title: z.string(),
+  date: z.coerce.date(),
+  description: z.string(),
+  heroImage: z.string().optional(),
+  draft: z.boolean().optional().default(false),
+});
+
+const toys = defineCollection({ type: "content", schema: categoryPostSchema });
+const travel = defineCollection({
+  type: "content",
+  schema: categoryPostSchema,
+});
+const drinks = defineCollection({
+  type: "content",
+  schema: categoryPostSchema,
+});
+const film = defineCollection({ type: "content", schema: categoryPostSchema });
+const engineering = defineCollection({
+  type: "content",
+  schema: categoryPostSchema,
+});
+
+export const collections = { blog, toys, travel, drinks, film, engineering };

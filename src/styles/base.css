@@ -1,3 +1,12 @@
+/* Self-hosted Korean fonts via @fontsource */
+@import "@fontsource/gowun-batang/korean-400.css";
+@import "@fontsource/gowun-batang/korean-700.css";
+@import "@fontsource/gowun-batang/latin-400.css";
+@import "@fontsource/noto-sans-kr/300.css";
+@import "@fontsource/noto-sans-kr/400.css";
+@import "@fontsource/noto-sans-kr/500.css";
+@import "@fontsource/noto-sans-kr/700.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

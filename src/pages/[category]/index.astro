@@ -1,0 +1,80 @@
+---
+import BaseLayout from "@layouts/BaseLayout.astro";
+import PostCard from "@components/PostCard.astro";
+import {
+  CATEGORIES,
+  getCategoryMeta,
+  getPostsByCategory,
+  type CategorySlug,
+} from "@utils/getAllPosts";
+
+export async function getStaticPaths() {
+  return CATEGORIES.map(({ slug }) => ({ params: { category: slug } }));
+}
+
+interface Props {
+  category: CategorySlug;
+}
+
+const { category } = Astro.params as { category: CategorySlug };
+const meta = getCategoryMeta(category);
+const posts = await getPostsByCategory(category);
+---
+
+<BaseLayout
+  title={`${meta.label} — 5ducks`}
+  description={meta.desc}
+  activeCategory={category}
+>
+  {/* Category header */}
+  <section class="cat-header">
+    <p class="cat-eyebrow">카테고리</p>
+    <h1 class="cat-title">{meta.label}</h1>
+    <p class="cat-desc">{meta.desc}</p>
+  </section>
+
+  {/* Posts grid */}
+  {
+    posts.length > 0 ? (
+      <section class="cat-posts">
+        <ul class="posts-grid">
+          {posts.map(post => (
+            <PostCard
+              {post}
+              href={`${import.meta.env.BASE_URL}${post.collection}/${post.slug}/`}
+              headingLevel="h2"
+            />
+          ))}
+        </ul>
+      </section>
+    ) : (
+      <section class="cat-empty">
+        <p>아직 작성된 글이 없습니다.</p>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .cat-header {
+    @apply mx-auto max-w-6xl px-6 py-20 sm:py-28;
+  }
+  .cat-eyebrow {
+    @apply mb-4 text-[10px] font-medium uppercase tracking-[0.18em] text-skin-accent;
+  }
+  .cat-title {
+    @apply font-serif text-4xl font-light tracking-tight text-skin-base sm:text-6xl;
+  }
+  .cat-desc {
+    @apply mt-6 max-w-lg text-base font-light leading-relaxed text-skin-base opacity-60;
+  }
+  .cat-posts {
+    @apply mx-auto max-w-6xl px-6 pb-20;
+  }
+  .posts-grid {
+    @apply grid gap-10 sm:grid-cols-2 lg:grid-cols-3;
+  }
+  .cat-empty {
+    @apply mx-auto max-w-6xl px-6 pb-20 text-skin-base opacity-50;
+  }
+</style>

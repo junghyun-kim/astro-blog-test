@@ -1,0 +1,45 @@
+---
+/**
+ * BaseLayout — page shell: HTML head (fonts, meta) + Header + Footer.
+ * All page-level layouts extend this.
+ */
+import Layout from "./Layout.astro";
+import Header from "@components/Header.astro";
+import Footer from "@components/Footer.astro";
+import type { CategorySlug } from "@utils/getAllPosts";
+
+export interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  activeCategory?: CategorySlug;
+  canonicalURL?: string;
+  pubDatetime?: Date;
+  modDatetime?: Date | null;
+}
+
+const {
+  title,
+  description,
+  ogImage,
+  activeCategory,
+  canonicalURL,
+  pubDatetime,
+  modDatetime,
+} = Astro.props;
+---
+
+<Layout
+  {title}
+  {description}
+  {ogImage}
+  {canonicalURL}
+  {pubDatetime}
+  {modDatetime}
+>
+  <Header activeCategory={activeCategory} />
+  <main id="main-content">
+    <slot />
+  </main>
+  <Footer />
+</Layout>

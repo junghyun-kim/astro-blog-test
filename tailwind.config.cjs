@@ -55,9 +55,11 @@ module.exports = {
         transparent: "transparent",
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        // Latin: Cormorant Garamond; Korean: Gowun Batang (browser picks per-glyph)
+        sans: ["Inter", "Noto Sans KR", "ui-sans-serif", "system-ui", "sans-serif"],
         serif: [
           "Cormorant Garamond",
+          "Gowun Batang",
           "Georgia",
           "Cambria",
           "Times New Roman",

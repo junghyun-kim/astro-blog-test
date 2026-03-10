@@ -1,169 +1,68 @@
 ---
-import { getCollection } from "astro:content";
-import Layout from "@layouts/Layout.astro";
-import Header from "@components/Header.astro";
-import Footer from "@components/Footer.astro";
-import LinkButton from "@components/LinkButton.astro";
-import Hr from "@components/Hr.astro";
-import Card from "@components/Card";
-import Socials from "@components/Socials.astro";
-import getSortedPosts from "@utils/getSortedPosts";
-import { getOgImageUrl } from "@utils/getOgImageUrl";
-import { SITE, SOCIALS } from "@config";
+import BaseLayout from "@layouts/BaseLayout.astro";
+import PostCard from "@components/PostCard.astro";
+import { getAllPosts, CATEGORIES } from "@utils/getAllPosts";
+import { SITE } from "@config";
 
-const posts = await getCollection("blog");
-
-const sortedPosts = getSortedPosts(posts);
-const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
-const recentPosts = sortedPosts.filter(({ data }) => !data.featured);
-
-const socialCount = SOCIALS.filter(social => social.active).length;
+const allPosts = await getAllPosts();
+const latestPosts = allPosts.slice(0, 6);
+const BASE = import.meta.env.BASE_URL;
 ---
 
-<Layout>
-  <Header />
-  <main id="main-content">
-    {/* ===== Editorial Hero ===== */}
-    <section id="hero">
-      <a
-        target="_blank"
-        href={`${import.meta.env.BASE_URL}rss.xml`}
-        class="rss-link"
-        aria-label="rss feed"
-        title="RSS Feed"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="rss-icon"
-          ><path
-            d="M19 20.001C19 11.729 12.271 5 4 5v2c7.168 0 13 5.832 13 13.001h2z"
-          ></path><path
-            d="M12 20.001h2C14 14.486 9.514 10 4 10v2c4.411 0 8 3.589 8 8.001z"
-          ></path><circle cx="6" cy="18" r="2"></circle>
-        </svg>
-        <span class="sr-only">RSS Feed</span>
-      </a>
+<BaseLayout title={SITE.title} description={SITE.desc}>
+  {/* ===== Hero ===== */}
+  <section id="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">큐레이션 매거진</p>
+      <h1>
+        한 사람의 취향을<br />깊이&nbsp;<em>파는 곳.</em>
+      </h1>
+      <p class="hero-desc">{SITE.desc}</p>
+    </div>
+  </section>
 
-      <div class="hero-inner">
-        <p class="hero-eyebrow">{SITE.title}</p>
-        <h1>
-          Stories<br />worth&nbsp;<em>reading.</em>
-        </h1>
-        <p class="hero-desc">{SITE.desc}</p>
-        {
-          socialCount > 0 && (
-            <div class="hero-socials">
-              <Socials />
-            </div>
-          )
-        }
-        <LinkButton
-          href={`${import.meta.env.BASE_URL}posts/`}
-          className="browse-link"
-        >
-          Browse all posts
-          <svg xmlns="http://www.w3.org/2000/svg" class="browse-icon"
-            ><path
-              d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-            ></path>
-          </svg>
-        </LinkButton>
-      </div>
-    </section>
+  {/* ===== Category nav ===== */}
+  <section id="categories">
+    <ul class="category-list">
+      {
+        CATEGORIES.map(({ slug, label, desc }) => (
+          <li>
+            <a href={`${BASE}${slug}/`} class="category-card group">
+              <span class="editorial-label">{label}</span>
+              <p class="cat-card-desc">{desc}</p>
+              <span class="cat-arrow">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
 
-    {
-      featuredPosts.length > 0 && (
-        <>
-          <Hr />
-          <section id="featured">
-            <p class="section-eyebrow">Featured</p>
-            {featuredPosts.slice(0, 1).map(({ data, slug }) => {
-              const imageUrl = getOgImageUrl(data.ogImage);
-              return (
-                <a
-                  href={`${import.meta.env.BASE_URL}posts/${slug}/`}
-                  class="featured-hero group"
-                >
-                  {imageUrl && (
-                    <div class="featured-img-wrap">
-                      <img
-                        src={imageUrl}
-                        alt={data.title}
-                        loading="eager"
-                        decoding="async"
-                        class="featured-img"
-                      />
-                    </div>
-                  )}
-                  <div class="featured-body">
-                    {data.tags?.[0] && (
-                      <span class="editorial-label">{data.tags[0]}</span>
-                    )}
-                    <h2 class="featured-title">{data.title}</h2>
-                    <p class="featured-desc">{data.description}</p>
-                    <span class="featured-cta">
-                      Read story
-                      <svg xmlns="http://www.w3.org/2000/svg" class="cta-arrow">
-                        <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
-                      </svg>
-                    </span>
-                  </div>
-                </a>
-              );
-            })}
-            {featuredPosts.length > 1 && (
-              <ul class="posts-grid mt-12">
-                {featuredPosts.slice(1).map(({ data, slug }) => (
-                  <Card
-                    href={`${import.meta.env.BASE_URL}posts/${slug}/`}
-                    frontmatter={data}
-                    secHeading={false}
-                  />
-                ))}
-              </ul>
-            )}
-          </section>
-        </>
-      )
-    }
-
-    {
-      recentPosts.length > 0 && (
-        <>
-          <Hr />
-          <section id="recent-posts">
-            <div class="section-header">
-              <p class="section-eyebrow">Latest</p>
-              <LinkButton
-                href={`${import.meta.env.BASE_URL}posts/`}
-                className="view-all-link"
-              >
-                View all
-                <svg xmlns="http://www.w3.org/2000/svg">
-                  <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
-                </svg>
-              </LinkButton>
-            </div>
-            <ul class="posts-grid">
-              {recentPosts.slice(0, 6).map(({ data, slug }) => (
-                <Card
-                  href={`${import.meta.env.BASE_URL}posts/${slug}/`}
-                  frontmatter={data}
-                  secHeading={false}
-                />
-              ))}
-            </ul>
-          </section>
-        </>
-      )
-    }
-  </main>
-
-  <Footer />
-</Layout>
+  {/* ===== Latest posts ===== */}
+  {
+    latestPosts.length > 0 && (
+      <section id="latest">
+        <div class="section-header">
+          <p class="section-eyebrow">최신 글</p>
+        </div>
+        <ul class="posts-grid">
+          {latestPosts.map(post => (
+            <PostCard
+              {post}
+              href={`${BASE}${post.collection}/${post.slug}/`}
+              headingLevel="h2"
+            />
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</BaseLayout>
 
 <style>
   /* ===== Hero ===== */
   #hero {
-    @apply relative py-20 sm:py-32;
+    @apply py-24 sm:py-36;
   }
   .hero-inner {
     @apply max-w-xl;
@@ -179,74 +78,43 @@ const socialCount = SOCIALS.filter(social => social.active).length;
     @apply not-italic text-skin-accent;
   }
   .hero-desc {
-    @apply mb-8 text-base font-light leading-relaxed text-skin-base opacity-60;
-  }
-  .hero-socials {
-    @apply mb-6 flex items-center;
-  }
-  .browse-link {
-    @apply inline-flex items-center gap-2 border border-skin-line px-5 py-2.5
-    text-xs font-medium uppercase tracking-[0.1em] text-skin-base
-    transition-colors hover:border-skin-accent hover:text-skin-accent;
-  }
-  .browse-icon {
-    @apply h-4 w-4 fill-current;
-  }
-  .rss-link {
-    @apply absolute right-0 top-6 p-2 opacity-40 transition-opacity hover:opacity-80;
-  }
-  .rss-icon {
-    @apply h-5 w-5 fill-skin-accent;
+    @apply text-base font-light leading-relaxed text-skin-base opacity-60;
   }
 
-  /* ===== Featured hero card ===== */
-  #featured {
-    @apply py-16;
+  /* ===== Category nav ===== */
+  #categories {
+    @apply border-t border-skin-line py-16;
   }
-  .featured-hero {
-    @apply mt-8 grid gap-0 sm:grid-cols-2;
+  .category-list {
+    @apply grid gap-0 sm:grid-cols-5;
   }
-  .featured-img-wrap {
-    @apply overflow-hidden;
-    aspect-ratio: 4/3;
+  .category-card {
+    @apply flex flex-col border-r border-skin-line px-5 py-6 transition-colors
+    hover:bg-skin-card last:border-r-0;
   }
-  .featured-img {
-    @apply h-full w-full object-cover transition-transform duration-700
-    group-hover:scale-[1.03];
+  /* On small screens, switch to horizontal borders */
+  @media (max-width: 639px) {
+    .category-card {
+      @apply border-b border-r-0 last:border-b-0;
+    }
   }
-  .featured-body {
-    @apply flex flex-col justify-center px-0 py-8 sm:py-0 sm:pl-12;
+  .cat-card-desc {
+    @apply mt-2 flex-1 text-xs leading-relaxed text-skin-base opacity-50 line-clamp-3;
   }
-  .featured-title {
-    @apply mt-3 font-serif text-3xl font-light leading-snug tracking-tight
-    text-skin-base transition-colors group-hover:text-skin-accent sm:text-4xl;
-  }
-  .featured-desc {
-    @apply mt-4 text-sm leading-relaxed text-skin-base opacity-60 line-clamp-4;
-  }
-  .featured-cta {
-    @apply mt-6 inline-flex items-center gap-2 text-[11px] font-medium
-    uppercase tracking-[0.1em] text-skin-accent;
-  }
-  .cta-arrow {
-    @apply h-4 w-4 fill-skin-accent;
+  .cat-arrow {
+    @apply mt-4 self-end text-xs text-skin-accent opacity-0 transition-opacity
+    group-hover:opacity-100;
   }
 
-  /* ===== Section headers ===== */
-  .section-eyebrow {
-    @apply text-[10px] font-medium uppercase tracking-[0.18em] text-skin-accent;
+  /* ===== Latest posts ===== */
+  #latest {
+    @apply border-t border-skin-line py-16;
   }
   .section-header {
-    @apply mb-10 flex items-end justify-between;
+    @apply mb-10;
   }
-  .view-all-link {
-    @apply inline-flex items-center gap-1 text-[11px] font-medium uppercase
-    tracking-[0.1em] text-skin-base opacity-60 transition-opacity hover:opacity-100;
-  }
-
-  /* ===== Posts grid ===== */
-  #recent-posts {
-    @apply py-16;
+  .section-eyebrow {
+    @apply text-[10px] font-medium uppercase tracking-[0.18em] text-skin-accent;
   }
   .posts-grid {
     @apply grid gap-10 sm:grid-cols-2 lg:grid-cols-3;

@@ -1,0 +1,136 @@
+---
+/**
+ * PostLayout — wraps a single article.
+ * Receives the post object from the page; renders hero image, meta, and
+ * the article body (passed via <slot>).
+ */
+import BaseLayout from "./BaseLayout.astro";
+import CategoryTag from "@components/CategoryTag.astro";
+import type { AnyPost, CategorySlug } from "@utils/getAllPosts";
+
+export interface Props {
+  post: AnyPost;
+}
+
+const { post } = Astro.props;
+const { title, description, heroImage, date } = post.data;
+const category = post.collection as CategorySlug;
+
+const dateStr = date.toLocaleDateString("ko-KR", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<BaseLayout
+  {title}
+  {description}
+  ogImage={heroImage}
+  activeCategory={category}
+  pubDatetime={date}
+>
+  {/* Back button */}
+  <div class="back-wrap">
+    <button
+      class="back-btn focus-outline"
+      onclick="(() => (history.length === 1) ? window.location = '/' : history.back())()"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="back-icon"
+        ><path
+          d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
+        ></path>
+      </svg>
+      <span>뒤로</span>
+    </button>
+  </div>
+
+  {/* Hero image — full-width, 16:7, sharp corners */}
+  {
+    heroImage && (
+      <div class="hero-img-wrap">
+        <img
+          src={heroImage}
+          alt={title}
+          loading="eager"
+          decoding="async"
+          class="hero-img"
+        />
+      </div>
+    )
+  }
+
+  {/* Article header */}
+  <div class="article-header">
+    <CategoryTag {category} class="mb-4 block" />
+    <h1 class="article-title">{title}</h1>
+    <time class="article-date" datetime={date.toISOString()}>{dateStr}</time>
+  </div>
+
+  {/* Article body */}
+  <article class="prose mx-auto max-w-3xl">
+    <slot />
+  </article>
+
+  {/* Footer nav */}
+  <div class="article-footer">
+    <a href={`${import.meta.env.BASE_URL}${category}/`} class="category-back">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 fill-current"
+        ><path
+          d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
+        ></path>
+      </svg>
+      <CategoryTag {category} />
+    </a>
+  </div>
+</BaseLayout>
+
+<style>
+  .back-wrap {
+    @apply mx-auto max-w-3xl px-6 pt-8;
+  }
+  .back-btn {
+    @apply inline-flex cursor-pointer items-center gap-1 border-none bg-transparent
+    text-[11px] font-medium uppercase tracking-[0.1em] text-skin-base
+    opacity-50 transition-opacity hover:opacity-100;
+  }
+  .back-icon {
+    @apply h-4 w-4 fill-current;
+  }
+
+  /* Hero image */
+  .hero-img-wrap {
+    @apply mx-auto mt-6 max-w-3xl overflow-hidden px-6;
+    aspect-ratio: 16 / 7;
+  }
+  .hero-img {
+    @apply h-full w-full object-cover;
+  }
+
+  /* Article header */
+  .article-header {
+    @apply mx-auto mt-8 max-w-3xl px-6 pb-8;
+  }
+  .article-title {
+    @apply font-serif text-3xl font-light leading-tight tracking-tight
+    text-skin-base sm:text-5xl;
+  }
+  .article-date {
+    @apply mt-4 block text-[11px] font-medium uppercase tracking-[0.12em]
+    text-skin-base opacity-40;
+  }
+
+  /* Article body */
+  :global(.prose) {
+    @apply px-6 pb-16;
+  }
+
+  /* Footer */
+  .article-footer {
+    @apply mx-auto max-w-3xl border-t border-skin-line px-6 py-10;
+  }
+  .category-back {
+    @apply inline-flex items-center gap-2 opacity-60 transition-opacity
+    hover:opacity-100;
+  }
+</style>

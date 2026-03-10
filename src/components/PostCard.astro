@@ -1,0 +1,83 @@
+---
+import CategoryTag from "./CategoryTag.astro";
+import type { AnyPost } from "@utils/getAllPosts";
+
+interface Props {
+  post: AnyPost;
+  href: string;
+  headingLevel?: "h2" | "h3";
+}
+
+const { post, href, headingLevel = "h2" } = Astro.props;
+const { title, description, heroImage, date } = post.data;
+const category = post.collection;
+
+const dateStr = date.toLocaleDateString("ko-KR", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+});
+---
+
+<li class="group">
+  <a
+    {href}
+    class="block h-full focus-visible:no-underline focus-visible:outline-dashed"
+  >
+    {/* Cover image — sharp corners, 3:2 aspect ratio */}
+    {
+      heroImage && (
+        <div class="img-wrap mb-5">
+          <img
+            src={heroImage}
+            alt={title}
+            loading="lazy"
+            decoding="async"
+            class="card-img"
+          />
+        </div>
+      )
+    }
+
+    {/* Category label */}
+    <CategoryTag {category} />
+
+    {/* Title */}
+    {
+      headingLevel === "h2" ? (
+        <h2 class="card-title">{title}</h2>
+      ) : (
+        <h3 class="card-title">{title}</h3>
+      )
+    }
+
+    {/* Description */}
+    <p class="card-desc">{description}</p>
+
+    {/* Date */}
+    <time class="card-date" datetime={date.toISOString()}>{dateStr}</time>
+  </a>
+</li>
+
+<style>
+  .img-wrap {
+    @apply overflow-hidden;
+    aspect-ratio: 3 / 2;
+  }
+  .card-img {
+    @apply h-full w-full object-cover transition-transform duration-700
+    group-hover:scale-[1.03];
+  }
+  .card-title {
+    @apply mt-3 font-serif text-xl font-light leading-snug tracking-tight
+    text-skin-base transition-colors duration-300 group-hover:text-skin-accent
+    sm:text-2xl;
+  }
+  .card-desc {
+    @apply mt-2 text-sm leading-relaxed text-skin-base opacity-60 line-clamp-3;
+  }
+  .card-date {
+    @apply mt-4 block border-t border-skin-line pt-4 text-[10px] font-medium
+    uppercase tracking-[0.12em] text-skin-base opacity-40;
+  }
+</style>

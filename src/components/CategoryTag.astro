@@ -1,0 +1,13 @@
+---
+import { getCategoryMeta } from "@utils/getAllPosts";
+
+interface Props {
+  category: string;
+  class?: string;
+}
+
+const { category, class: className } = Astro.props;
+const { label } = getCategoryMeta(category);
+---
+
+<span class:list={["editorial-label", className]}>{label}</span>
