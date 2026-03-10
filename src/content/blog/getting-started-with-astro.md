@@ -8,6 +8,7 @@ draft: false
 tags:
   - astro
   - tutorial
+ogImage: "https://images.unsplash.com/photo-1517180102446-f3ece451e9d8?w=1200&q=80"
 description: "Learn how to build blazing-fast websites with Astro, the all-in-one web framework designed for speed."
 ---
 

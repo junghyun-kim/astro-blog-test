@@ -8,6 +8,7 @@ draft: false
 tags:
   - performance
   - web
+ogImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&q=80"
 description: "Practical techniques to dramatically improve your website's loading speed, Core Web Vitals scores, and overall user experience."
 ---
 

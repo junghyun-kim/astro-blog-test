@@ -56,6 +56,13 @@ module.exports = {
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: [
+          "Cormorant Garamond",
+          "Georgia",
+          "Cambria",
+          "Times New Roman",
+          "serif",
+        ],
         mono: ["IBM Plex Mono", "monospace"],
       },
 

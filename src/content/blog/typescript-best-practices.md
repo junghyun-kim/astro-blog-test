@@ -8,6 +8,7 @@ draft: false
 tags:
   - typescript
   - javascript
+ogImage: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=1200&q=80"
 description: "Essential TypeScript patterns and best practices to write safer, more maintainable code in your projects."
 ---
 

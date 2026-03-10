@@ -8,6 +8,7 @@ draft: false
 tags:
   - design
   - ux
+ogImage: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1200&q=80"
 description: "A deep dive into implementing dark mode in modern web applications while keeping the user experience smooth and consistent."
 ---
 

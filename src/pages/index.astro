@@ -8,6 +8,7 @@ import Hr from "@components/Hr.astro";
 import Card from "@components/Card";
 import Socials from "@components/Socials.astro";
 import getSortedPosts from "@utils/getSortedPosts";
+import { getOgImageUrl } from "@utils/getOgImageUrl";
 import { SITE, SOCIALS } from "@config";
 
 const posts = await getCollection("blog");
@@ -22,37 +23,8 @@ const socialCount = SOCIALS.filter(social => social.active).length;
 <Layout>
   <Header />
   <main id="main-content">
+    {/* ===== Editorial Hero ===== */}
     <section id="hero">
-      <div class="hero-content">
-        <div class="hero-badge">Blog</div>
-        <h1>
-          Ideas worth<br />
-          <span class="hero-accent">reading.</span>
-        </h1>
-        <p class="hero-desc">
-          {SITE.desc}
-        </p>
-        <div class="hero-actions">
-          <LinkButton
-            href={`${import.meta.env.BASE_URL}posts/`}
-            className="btn-primary"
-          >
-            Browse all posts
-            <svg xmlns="http://www.w3.org/2000/svg" class="btn-icon"
-              ><path
-                d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
-              ></path>
-            </svg>
-          </LinkButton>
-          {
-            socialCount > 0 && (
-              <div class="hero-socials">
-                <Socials />
-              </div>
-            )
-          }
-        </div>
-      </div>
       <a
         target="_blank"
         href={`${import.meta.env.BASE_URL}rss.xml`}
@@ -69,6 +41,32 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         </svg>
         <span class="sr-only">RSS Feed</span>
       </a>
+
+      <div class="hero-inner">
+        <p class="hero-eyebrow">{SITE.title}</p>
+        <h1>
+          Stories<br />worth&nbsp;<em>reading.</em>
+        </h1>
+        <p class="hero-desc">{SITE.desc}</p>
+        {
+          socialCount > 0 && (
+            <div class="hero-socials">
+              <Socials />
+            </div>
+          )
+        }
+        <LinkButton
+          href={`${import.meta.env.BASE_URL}posts/`}
+          className="browse-link"
+        >
+          Browse all posts
+          <svg xmlns="http://www.w3.org/2000/svg" class="browse-icon"
+            ><path
+              d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z"
+            ></path>
+          </svg>
+        </LinkButton>
+      </div>
     </section>
 
     {
@@ -76,18 +74,52 @@ const socialCount = SOCIALS.filter(social => social.active).length;
         <>
           <Hr />
           <section id="featured">
-            <div class="section-header">
-              <h2>Featured</h2>
-            </div>
-            <ul class="posts-grid">
-              {featuredPosts.map(({ data, slug }) => (
-                <Card
+            <p class="section-eyebrow">Featured</p>
+            {featuredPosts.slice(0, 1).map(({ data, slug }) => {
+              const imageUrl = getOgImageUrl(data.ogImage);
+              return (
+                <a
                   href={`${import.meta.env.BASE_URL}posts/${slug}/`}
-                  frontmatter={data}
-                  secHeading={false}
-                />
-              ))}
-            </ul>
+                  class="featured-hero group"
+                >
+                  {imageUrl && (
+                    <div class="featured-img-wrap">
+                      <img
+                        src={imageUrl}
+                        alt={data.title}
+                        loading="eager"
+                        decoding="async"
+                        class="featured-img"
+                      />
+                    </div>
+                  )}
+                  <div class="featured-body">
+                    {data.tags?.[0] && (
+                      <span class="editorial-label">{data.tags[0]}</span>
+                    )}
+                    <h2 class="featured-title">{data.title}</h2>
+                    <p class="featured-desc">{data.description}</p>
+                    <span class="featured-cta">
+                      Read story
+                      <svg xmlns="http://www.w3.org/2000/svg" class="cta-arrow">
+                        <path d="m11.293 17.293 1.414 1.414L19.414 12l-6.707-6.707-1.414 1.414L15.586 11H6v2h9.586z" />
+                      </svg>
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+            {featuredPosts.length > 1 && (
+              <ul class="posts-grid mt-12">
+                {featuredPosts.slice(1).map(({ data, slug }) => (
+                  <Card
+                    href={`${import.meta.env.BASE_URL}posts/${slug}/`}
+                    frontmatter={data}
+                    secHeading={false}
+                  />
+                ))}
+              </ul>
+            )}
           </section>
         </>
       )
@@ -99,7 +131,7 @@ const socialCount = SOCIALS.filter(social => social.active).length;
           <Hr />
           <section id="recent-posts">
             <div class="section-header">
-              <h2>Recent Posts</h2>
+              <p class="section-eyebrow">Latest</p>
               <LinkButton
                 href={`${import.meta.env.BASE_URL}posts/`}
                 className="view-all-link"
@@ -129,64 +161,94 @@ const socialCount = SOCIALS.filter(social => social.active).length;
 </Layout>
 
 <style>
-  /* ===== Hero Section ===== */
+  /* ===== Hero ===== */
   #hero {
-    @apply relative py-16 sm:py-24;
+    @apply relative py-20 sm:py-32;
   }
-  .hero-content {
-    @apply max-w-2xl;
+  .hero-inner {
+    @apply max-w-xl;
   }
-  .hero-badge {
-    @apply mb-4 inline-flex items-center rounded-full border border-skin-accent border-opacity-40 bg-skin-accent bg-opacity-10 px-3 py-1 text-sm font-medium text-skin-accent;
+  .hero-eyebrow {
+    @apply mb-6 text-[10px] font-medium uppercase tracking-[0.18em] text-skin-accent;
   }
   #hero h1 {
-    @apply mb-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-6xl;
+    @apply mb-6 font-serif text-5xl font-light leading-[1.1] tracking-tight
+    text-skin-base sm:text-7xl;
   }
-  .hero-accent {
-    @apply text-skin-accent;
+  #hero h1 em {
+    @apply not-italic text-skin-accent;
   }
   .hero-desc {
-    @apply mb-8 text-lg leading-relaxed text-skin-base opacity-70;
-  }
-  .hero-actions {
-    @apply flex flex-wrap items-center gap-4;
-  }
-  .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-xl bg-skin-accent px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 hover:shadow-lg;
-  }
-  .btn-icon {
-    @apply h-4 w-4 fill-current;
+    @apply mb-8 text-base font-light leading-relaxed text-skin-base opacity-60;
   }
   .hero-socials {
-    @apply flex items-center;
+    @apply mb-6 flex items-center;
+  }
+  .browse-link {
+    @apply inline-flex items-center gap-2 border border-skin-line px-5 py-2.5
+    text-xs font-medium uppercase tracking-[0.1em] text-skin-base
+    transition-colors hover:border-skin-accent hover:text-skin-accent;
+  }
+  .browse-icon {
+    @apply h-4 w-4 fill-current;
   }
   .rss-link {
-    @apply absolute right-0 top-6 p-2 opacity-60 transition-opacity hover:opacity-100;
+    @apply absolute right-0 top-6 p-2 opacity-40 transition-opacity hover:opacity-80;
   }
   .rss-icon {
     @apply h-5 w-5 fill-skin-accent;
   }
 
-  /* ===== Section Headers ===== */
-  .section-header {
-    @apply mb-8 flex items-center justify-between;
+  /* ===== Featured hero card ===== */
+  #featured {
+    @apply py-16;
   }
-  #featured h2,
-  #recent-posts h2 {
-    @apply text-2xl font-bold tracking-tight;
+  .featured-hero {
+    @apply mt-8 grid gap-0 sm:grid-cols-2;
+  }
+  .featured-img-wrap {
+    @apply overflow-hidden;
+    aspect-ratio: 4/3;
+  }
+  .featured-img {
+    @apply h-full w-full object-cover transition-transform duration-700
+    group-hover:scale-[1.03];
+  }
+  .featured-body {
+    @apply flex flex-col justify-center px-0 py-8 sm:py-0 sm:pl-12;
+  }
+  .featured-title {
+    @apply mt-3 font-serif text-3xl font-light leading-snug tracking-tight
+    text-skin-base transition-colors group-hover:text-skin-accent sm:text-4xl;
+  }
+  .featured-desc {
+    @apply mt-4 text-sm leading-relaxed text-skin-base opacity-60 line-clamp-4;
+  }
+  .featured-cta {
+    @apply mt-6 inline-flex items-center gap-2 text-[11px] font-medium
+    uppercase tracking-[0.1em] text-skin-accent;
+  }
+  .cta-arrow {
+    @apply h-4 w-4 fill-skin-accent;
+  }
+
+  /* ===== Section headers ===== */
+  .section-eyebrow {
+    @apply text-[10px] font-medium uppercase tracking-[0.18em] text-skin-accent;
+  }
+  .section-header {
+    @apply mb-10 flex items-end justify-between;
   }
   .view-all-link {
-    @apply inline-flex items-center gap-1 text-sm font-medium text-skin-accent transition-opacity hover:opacity-80;
+    @apply inline-flex items-center gap-1 text-[11px] font-medium uppercase
+    tracking-[0.1em] text-skin-base opacity-60 transition-opacity hover:opacity-100;
   }
 
-  /* ===== Posts Grid ===== */
-  .posts-grid {
-    @apply grid gap-5 sm:grid-cols-2 lg:grid-cols-3;
-  }
-
-  /* ===== Featured & Recent Posts Sections ===== */
-  #featured,
+  /* ===== Posts grid ===== */
   #recent-posts {
-    @apply pb-10 pt-12;
+    @apply py-16;
+  }
+  .posts-grid {
+    @apply grid gap-10 sm:grid-cols-2 lg:grid-cols-3;
   }
 </style>
