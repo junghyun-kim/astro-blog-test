@@ -1,0 +1,34 @@
+---
+import PostLayout from "@layouts/PostLayout.astro";
+import { CATEGORIES } from "@utils/getAllPosts";
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  // Load all posts from the 5 category collections and build static paths.
+  const [toys, travel, drinks, film, engineering] = await Promise.all([
+    getCollection("toys", ({ data }) => !data.draft),
+    getCollection("travel", ({ data }) => !data.draft),
+    getCollection("drinks", ({ data }) => !data.draft),
+    getCollection("film", ({ data }) => !data.draft),
+    getCollection("engineering", ({ data }) => !data.draft),
+  ]);
+
+  return [...toys, ...travel, ...drinks, ...film, ...engineering].map(post => ({
+    params: { category: post.collection, slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+// Validate the category param is one of our known categories (guard for TS).
+const validCategory = CATEGORIES.some(c => c.slug === post.collection);
+if (!validCategory) {
+  return Astro.redirect("/404");
+}
+---
+
+<PostLayout {post}>
+  <Content />
+</PostLayout>

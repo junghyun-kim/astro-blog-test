@@ -6,6 +6,7 @@ import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
 import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
+import { getOgImageUrl } from "@utils/getOgImageUrl";
 import ShareLinks from "@components/ShareLinks.astro";
 import { SITE } from "@config";
 
@@ -53,27 +54,41 @@ const layoutProps = {
     <div class="progress-bar h-1 w-0 bg-skin-accent" id="myBar"></div>
   </div> -->
 
-  <div class="mx-auto flex w-full max-w-3xl justify-start px-2">
+  <div class="mx-auto flex w-full max-w-3xl justify-start px-6">
     <button
-      class="focus-outline mb-2 mt-8 flex hover:opacity-75"
+      class="focus-outline mb-2 mt-8 flex items-center gap-1 text-[11px] font-medium uppercase tracking-[0.1em] text-skin-base opacity-50 transition-opacity hover:opacity-100"
       onclick="(() => (history.length === 1) ? window.location = '/' : history.back())()"
     >
       <svg xmlns="http://www.w3.org/2000/svg"
         ><path
           d="M13.293 6.293 7.586 12l5.707 5.707 1.414-1.414L10.414 12l4.293-4.293z"
         ></path>
-      </svg><span>Go back</span>
+      </svg><span>Back</span>
     </button>
   </div>
   <main id="main-content">
+    {/* Cover image — sharp corners, full width of reading column */}
+    {
+      (() => {
+        const imgUrl = getOgImageUrl(ogImage);
+        return imgUrl ? (
+          <div class="post-cover">
+            <img src={imgUrl} alt={title} loading="eager" decoding="async" />
+          </div>
+        ) : null;
+      })()
+    }
+    <div class="post-meta">
+      {tags[0] && <span class="editorial-label">{tags[0]}</span>}
+    </div>
     <h1 transition:name={slugifyStr(title)} class="post-title">{title}</h1>
     <Datetime
       pubDatetime={pubDatetime}
       modDatetime={modDatetime}
       size="lg"
-      className="my-2"
+      className="my-4 opacity-60"
     />
-    <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
+    <article id="article" role="article" class="prose mx-auto mt-10 max-w-3xl">
       <Content />
     </article>
 
@@ -104,10 +119,21 @@ const layoutProps = {
 
 <style>
   main {
-    @apply mx-auto w-full max-w-3xl px-4 pb-12;
+    @apply mx-auto w-full max-w-3xl px-6 pb-16;
+  }
+  .post-cover {
+    @apply mb-10 overflow-hidden;
+    aspect-ratio: 16/7;
+  }
+  .post-cover img {
+    @apply h-full w-full object-cover;
+  }
+  .post-meta {
+    @apply mb-4;
   }
   .post-title {
-    @apply text-2xl font-semibold text-skin-accent;
+    @apply font-serif text-3xl font-light leading-tight tracking-tight
+    text-skin-base sm:text-5xl;
   }
 </style>
 

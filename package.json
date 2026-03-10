@@ -18,6 +18,8 @@
   "dependencies": {
     "@astrojs/check": "^0.4.1",
     "@astrojs/rss": "^4.0.2",
+    "@fontsource/gowun-batang": "^5.2.8",
+    "@fontsource/noto-sans-kr": "^5.2.9",
     "@resvg/resvg-js": "^2.6.0",
     "astro": "^4.2.1",
     "fuse.js": "^7.0.0",

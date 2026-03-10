@@ -27,7 +27,7 @@ const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
     pageDesc={`All the articles with the tag "${tagName}".`}
   >
     <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
-    <ul>
+    <ul class="posts-grid">
       {
         paginatedPosts.map(({ data, slug }) => (
           <Card
@@ -50,3 +50,9 @@ const { currentPage, totalPages, paginatedPosts, tag, tagName } = Astro.props;
 
   <Footer noMarginTop={totalPages > 1} />
 </Layout>
+
+<style>
+  .posts-grid {
+    @apply grid gap-10 sm:grid-cols-2 lg:grid-cols-3;
+  }
+</style>

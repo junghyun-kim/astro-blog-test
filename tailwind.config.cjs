@@ -11,10 +11,10 @@ function withOpacity(variableName) {
 module.exports = {
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
   theme: {
-    // Remove the following screen breakpoint or add other breakpoints
-    // if one breakpoint is not enough for you
     screens: {
       sm: "640px",
+      md: "768px",
+      lg: "1024px",
     },
 
     extend: {
@@ -23,6 +23,7 @@ module.exports = {
           base: withOpacity("--color-text-base"),
           accent: withOpacity("--color-accent"),
           inverted: withOpacity("--color-fill"),
+          muted: withOpacity("--color-text-muted"),
         },
       },
       backgroundColor: {
@@ -54,6 +55,16 @@ module.exports = {
         transparent: "transparent",
       },
       fontFamily: {
+        // Latin: Cormorant Garamond; Korean: Gowun Batang (browser picks per-glyph)
+        sans: ["Inter", "Noto Sans KR", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: [
+          "Cormorant Garamond",
+          "Gowun Batang",
+          "Georgia",
+          "Cambria",
+          "Times New Roman",
+          "serif",
+        ],
         mono: ["IBM Plex Mono", "monospace"],
       },
 
